@@ -20,10 +20,10 @@ android {
 }
 
 repositories {
+    // unfortunately, POM files do not contain repository urls...
     maven {
         url CptRepoReadUrl
     }
-    // unfortunately, POM files do not contain repository urls...
     maven {
         url "https://s3.amazonaws.com/repo.commonsware.com"
     }
