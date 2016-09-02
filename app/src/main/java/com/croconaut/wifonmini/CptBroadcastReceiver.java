@@ -97,7 +97,8 @@ public class CptBroadcastReceiver extends CptReceiver {
 
     @Override
     protected void onNearbyPeers(Context context, ArrayList<NearbyUser> nearbyUsers) {
-
+        NearbyListener nearbyListener = (NearbyListener) context.getApplicationContext();
+        nearbyListener.onNearbyPeers(nearbyUsers);
     }
     @Override
     protected void onCptNotificationTapped(Context context) {
