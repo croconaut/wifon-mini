@@ -3,4 +3,13 @@
     <string name="action_settings">Settings</string>
     <string name="snack_only_files">Sorry, this app shares files only. Use WiFON for messaging!</string>
     <string name="snack_missing_uri">The caller didn\'t provide an Uri source to share!</string>
+    <string name="listview_nobody_nearby">Nobody nearby at the moment</string>
+    <string name="snack_cpt_off">%1$s is disabled, start the activity to enable it again</string>
+    <string name="snack_upload_cancelled">Uploading of %1$s has been cancelled</string>
+    <string name="snack_upload_completed">Uploading of %1$s has been completed</string>
+    <string name="snack_download_cancelled">Downloading of %1$s has been cancelled</string>
+    <string name="snack_download_completed">Downloading of %1$s has been completed</string>
+    <string name="snack_no_message">Please select a couple of files first</string>
+    <string name="snack_message_in_progress">P2P communication in progress…</string>
+    <string name="label_files_summary">Send %1$d file(s) (%2$s) to:</string>
 </resources>
