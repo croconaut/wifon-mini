@@ -116,7 +116,7 @@ public class CptBroadcastReceiver extends CptReceiver {
     protected void onCptNotificationTapped(Context context) {
         CptController cptController = new CptController(context);
         cptController.setMode(LinkLayerMode.OFF);
-        Toast.makeText(context, context.getString(R.string.snack_cpt_off), Toast.LENGTH_LONG).show();
+        Toast.makeText(context, context.getString(R.string.snack_cpt_off, context.getApplicationInfo().name), Toast.LENGTH_LONG).show();
     }
     @Override
     protected void onDownloadNotificationTapped(Context context, long messageId, String sourceUri, String storageDirectory, String from) {

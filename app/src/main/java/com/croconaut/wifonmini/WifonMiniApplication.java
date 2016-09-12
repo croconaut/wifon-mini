@@ -8,11 +8,13 @@ import android.util.Log;
 import com.croconaut.cpt.data.NearbyUser;
 import com.croconaut.cpt.ui.CptController;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class WifonMiniApplication extends Application implements NearbyListener, NearbyProvider {
+public class WifonMiniApplication extends Application implements NearbyManager {
     private static final String TAG = "WifonMiniApplication";
 
+    private ArrayList<NearbyListener> nearbyListeners = new ArrayList<>();
     private long latestNearbyUsersTimestamp = -1;
     private List<NearbyUser> latestNearbyUsers;
 
@@ -46,18 +48,21 @@ public class WifonMiniApplication extends Application implements NearbyListener,
     }
 
     @Override
-    public void onNearbyPeers(List<NearbyUser> nearbyPeers) {
+    public void addNearbyListener(NearbyListener nearbyListener) {
+        nearbyListeners.add(nearbyListener);
+        if (latestNearbyUsersTimestamp != -1) {
+            nearbyListener.onNearbyPeers(latestNearbyUsers);
+        }
+    }
+
+    @Override
+    public void removeNearbyListener(NearbyListener nearbyListener) {
+        nearbyListeners.remove(nearbyListener);
+    }
+
+    @Override
+    public void updateNearbyPeers(List<NearbyUser> nearbyPeers) {
         latestNearbyUsersTimestamp = System.currentTimeMillis();
         latestNearbyUsers = nearbyPeers;
-    }
-
-    @Override
-    public long getLatestNearbyUsersTimestamp() {
-        return latestNearbyUsersTimestamp;
-    }
-
-    @Override
-    public List<NearbyUser> getLatestNearbyUsers() {
-        return latestNearbyUsers;
     }
 }

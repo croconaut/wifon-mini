@@ -33,17 +33,17 @@ import java.util.Map;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class NearbyListFragment extends ListFragment {
+public class NearbyListFragment extends ListFragment implements NearbyListener {
     private static final String TAG = "NearbyListFragment";
 
     private OutgoingMessage outgoingMessage;
-    private NearbyProvider nearbyProvider;
+    private NearbyManager nearbyManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        nearbyProvider = (NearbyProvider) getContext().getApplicationContext();
+        nearbyManager = (NearbyManager) getContext().getApplicationContext();
     }
 
     @Override
@@ -67,13 +67,20 @@ public class NearbyListFragment extends ListFragment {
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             handleMultipleFiles(intent);
         }
+    }
 
-        List<Map<String, String>> list = getNearbyList();
-        String[] from = { "username", "crocoId" };
-        int[] to = { android.R.id.text1, android.R.id.text2 };
+    @Override
+    public void onResume() {
+        super.onResume();
 
-        SimpleAdapter adapter = new SimpleAdapter(getContext(), list, android.R.layout.simple_list_item_2, from, to);
-        setListAdapter(adapter);
+        nearbyManager.addNearbyListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        nearbyManager.removeNearbyListener(this);
     }
 
     @Override
@@ -101,6 +108,22 @@ public class NearbyListFragment extends ListFragment {
         } else {
             Snackbar.make(v, getString(R.string.snack_no_message), Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onNearbyPeers(List<NearbyUser> nearbyPeers) {
+        List<Map<String, String>> list = new ArrayList<>();
+        for (NearbyUser nearbyUser : nearbyPeers) {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("username", nearbyUser.username);
+            map.put("crocoId", nearbyUser.crocoId);
+            list.add(map);
+        }
+        String[] from = { "username", "crocoId" };
+        int[] to = { android.R.id.text1, android.R.id.text2 };
+        SimpleAdapter adapter = new SimpleAdapter(getContext(), list, android.R.layout.simple_list_item_2, from, to);
+        // this is a terrible way how to update items
+        setListAdapter(adapter);
     }
 
     private void handleFile(Intent intent) {
@@ -186,20 +209,5 @@ public class NearbyListFragment extends ListFragment {
         } else {
             Snackbar.make(getView(), getString(R.string.snack_missing_uri), Snackbar.LENGTH_LONG).show();
         }
-    }
-
-    private List<Map<String, String>> getNearbyList() {
-        ArrayList<Map<String, String>> list = new ArrayList<>();
-
-        if (nearbyProvider.getLatestNearbyUsersTimestamp() != -1) {
-            for (NearbyUser nearbyUser : nearbyProvider.getLatestNearbyUsers()) {
-                HashMap<String, String> map = new HashMap<>();
-                map.put("username", nearbyUser.username);
-                map.put("crocoId", nearbyUser.crocoId);
-                list.add(map);
-            }
-        }
-
-        return list;
     }
 }
