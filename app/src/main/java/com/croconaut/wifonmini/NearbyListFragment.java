@@ -39,6 +39,7 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
 
     private OutgoingMessage outgoingMessage;
     private NearbyManager nearbyManager;
+    private Uri uri;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,6 +100,18 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
             handleSendFile(intent, crocoId);
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             handleSendMultipleFiles(intent, crocoId);
+        } else if (uri != null) {
+            // TODO: refactor...
+            try {
+                OutgoingPayload outgoingPayload = new OutgoingPayload("");
+                outgoingPayload.addAttachment(new LocalAttachment(getContext(), uri, Environment.DIRECTORY_DOWNLOADS));
+
+                outgoingMessage = new OutgoingMessage(crocoId);
+                outgoingMessage.setPayload(outgoingPayload);
+            } catch (IOException e) {
+                Log.e(TAG, "handleUri()", e);
+            }
+            uri = null;
         } else {
             Snackbar.make(v, getString(R.string.snack_no_message), Snackbar.LENGTH_SHORT).show();
             return;
@@ -125,6 +138,13 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
         SimpleAdapter adapter = new SimpleAdapter(getContext(), list, android.R.layout.simple_list_item_2, from, to);
         // this is a terrible way how to update items
         setListAdapter(adapter);
+    }
+
+    public void onUri(Uri uri) {
+        TextView textView = (TextView)getActivity().findViewById(R.id.textView);
+        textView.setText(getResources().getString(R.string.label_files_summary, 1, Formatter.formatShortFileSize(getContext(), getFileSize(uri))));
+
+        this.uri = uri;
     }
 
     private void handleFile(Intent intent) {
