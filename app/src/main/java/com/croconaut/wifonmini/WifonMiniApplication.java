@@ -5,16 +5,18 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.croconaut.cpt.data.Communication;
 import com.croconaut.cpt.data.NearbyUser;
 import com.croconaut.cpt.ui.CptController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class WifonMiniApplication extends Application implements NearbyManager {
     private static final String TAG = "WifonMiniApplication";
 
-    private ArrayList<NearbyListener> nearbyListeners = new ArrayList<>();
+    private final ArrayList<NearbyListener> nearbyListeners = new ArrayList<>();
     private long latestNearbyUsersTimestamp = -1;
     private List<NearbyUser> latestNearbyUsers;
 
@@ -30,6 +32,9 @@ public class WifonMiniApplication extends Application implements NearbyManager {
                 wm.disableNetwork(wifiConfiguration.networkId);
             }
         }
+
+        // first thing before any CPT related enquiry
+        Communication.register(this, "User " + UUID.randomUUID().toString().substring(0, 20), CptBroadcastReceiver.class);
 
         CptController cptController = new CptController(this);
         cptController.setInternetEnabled(false);    // disable internet server usage
@@ -64,5 +69,9 @@ public class WifonMiniApplication extends Application implements NearbyManager {
     public void updateNearbyPeers(List<NearbyUser> nearbyPeers) {
         latestNearbyUsersTimestamp = System.currentTimeMillis();
         latestNearbyUsers = nearbyPeers;
+
+        for (NearbyListener nearbyListener : nearbyListeners) {
+            nearbyListener.onNearbyPeers(nearbyPeers);
+        }
     }
 }

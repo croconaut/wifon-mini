@@ -109,14 +109,14 @@ public class CptBroadcastReceiver extends CptReceiver {
 
     @Override
     protected void onNearbyPeers(Context context, ArrayList<NearbyUser> nearbyUsers) {
-        NearbyListener nearbyListener = (NearbyListener) context.getApplicationContext();
-        nearbyListener.onNearbyPeers(nearbyUsers);
+        NearbyManager nearbyListener = (NearbyManager) context.getApplicationContext();
+        nearbyListener.updateNearbyPeers(nearbyUsers);
     }
     @Override
     protected void onCptNotificationTapped(Context context) {
         CptController cptController = new CptController(context);
         cptController.setMode(LinkLayerMode.OFF);
-        Toast.makeText(context, context.getString(R.string.snack_cpt_off, context.getApplicationInfo().name), Toast.LENGTH_LONG).show();
+        Toast.makeText(context, context.getString(R.string.snack_cpt_off, context.getApplicationInfo().loadLabel(context.getPackageManager())), Toast.LENGTH_LONG).show();
     }
     @Override
     protected void onDownloadNotificationTapped(Context context, long messageId, String sourceUri, String storageDirectory, String from) {

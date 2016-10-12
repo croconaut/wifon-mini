@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.croconaut.cpt.data.Communication;
 import com.croconaut.cpt.data.LocalAttachment;
@@ -85,39 +86,39 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        if (outgoingMessage != null) {
-            @SuppressWarnings("unchecked") HashMap<String, String> map = (HashMap<String, String>) l.getAdapter().getItem(position);
-            String username = map.get("username");
-            String crocoId = map.get("crocoId");
+        @SuppressWarnings("unchecked") HashMap<String, String> map = (HashMap<String, String>) l.getAdapter().getItem(position);
+        String username = map.get("username");
+        String crocoId = map.get("crocoId");
 
-            // Get intent, action and MIME type
-            Intent intent = getActivity().getIntent();
-            String action = intent.getAction();
-            String type = intent.getType();
+        // Get intent, action and MIME type
+        Intent intent = getActivity().getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
 
-            if (Intent.ACTION_SEND.equals(action) && type != null) {
-                handleSendFile(intent, crocoId);
-            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-                handleSendMultipleFiles(intent, crocoId);
-            }
-
-            Communication.newMessage(getContext(), outgoingMessage);
-            outgoingMessage = null;
-            getActivity().finish();
-            Snackbar.make(v, getString(R.string.snack_message_in_progress), Snackbar.LENGTH_SHORT).show();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            handleSendFile(intent, crocoId);
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            handleSendMultipleFiles(intent, crocoId);
         } else {
             Snackbar.make(v, getString(R.string.snack_no_message), Snackbar.LENGTH_SHORT).show();
+            return;
         }
+
+        Communication.newMessage(getContext(), outgoingMessage);
+        Toast.makeText(getContext(), getString(R.string.snack_message_in_progress), Toast.LENGTH_SHORT).show();
+        getActivity().finish();
     }
 
     @Override
     public void onNearbyPeers(List<NearbyUser> nearbyPeers) {
         List<Map<String, String>> list = new ArrayList<>();
         for (NearbyUser nearbyUser : nearbyPeers) {
-            HashMap<String, String> map = new HashMap<>();
-            map.put("username", nearbyUser.username);
-            map.put("crocoId", nearbyUser.crocoId);
-            list.add(map);
+            if (nearbyUser.username != null) {
+                HashMap<String, String> map = new HashMap<>();
+                map.put("username", nearbyUser.username);
+                map.put("crocoId", nearbyUser.crocoId);
+                list.add(map);
+            }
         }
         String[] from = { "username", "crocoId" };
         int[] to = { android.R.id.text1, android.R.id.text2 };
@@ -178,10 +179,8 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
                 OutgoingPayload outgoingPayload = new OutgoingPayload("");
                 outgoingPayload.addAttachment(new LocalAttachment(getContext(), fileUri, Environment.DIRECTORY_DOWNLOADS));
 
-                OutgoingMessage outgoingMessage = new OutgoingMessage(to);
+                outgoingMessage = new OutgoingMessage(to);
                 outgoingMessage.setPayload(outgoingPayload);
-
-                Communication.newMessage(getContext(), outgoingMessage);
             } catch (IOException e) {
                 Log.e(TAG, "handleSendFile()", e);
             }
@@ -199,10 +198,8 @@ public class NearbyListFragment extends ListFragment implements NearbyListener {
                     outgoingPayload.addAttachment(new LocalAttachment(getContext(), fileUri, Environment.DIRECTORY_DOWNLOADS));
                 }
 
-                OutgoingMessage outgoingMessage = new OutgoingMessage(to);
+                outgoingMessage = new OutgoingMessage(to);
                 outgoingMessage.setPayload(outgoingPayload);
-
-                Communication.newMessage(getContext(), outgoingMessage);
             } catch (IOException e) {
                 Log.e(TAG, "handleSendMultipleFiles()", e);
             }
