@@ -37,7 +37,6 @@ public class WifonMiniApplication extends Application implements NearbyManager {
         Communication.register(this, "User " + UUID.randomUUID().toString().substring(0, 20), CptBroadcastReceiver.class);
 
         CptController cptController = new CptController(this);
-        cptController.setInternetEnabled(false);    // disable internet server usage
         if (cptController.isBatteryOptimizationModifiable()) {
             Log.i(TAG, "Disabling batter optimization");
             cptController.setBatteryOptimizationEnabled(false);
